@@ -186,3 +186,63 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+
+
+
+/* =========================================================================
+   PREMIUM AJAX SUBMISSION (NO NEW WINDOW NEEDED)
+========================================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const contactForm = document.querySelector(".contact-form");
+    
+    if (contactForm) {
+        contactForm.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Page එක refresh වීම හෝ open වීම නවත්වනවා
+            
+            const submitBtn = contactForm.querySelector(".send-btn");
+            const originalText = submitBtn.innerHTML;
+            
+            // Button Loading State
+            submitBtn.innerHTML = "Transmitting... ⏳";
+            submitBtn.style.pointerEvents = "none";
+            submitBtn.style.background = "#151518";
+            submitBtn.style.color = "#77777a";
+
+            const data = new FormData(contactForm);
+            
+            try {
+                const response = await fetch(contactForm.action, {
+                    method: contactForm.method,
+                    body: data,
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    // Success State UI Animation
+                    submitBtn.innerHTML = "Message Transmitted Successfully! ✓";
+                    submitBtn.style.background = "#00e5ff";
+                    submitBtn.style.color = "#000";
+                    submitBtn.style.boxShadow = "0 0 30px rgba(0, 229, 255, 0.4)";
+                    contactForm.reset();
+                    
+                    // තත්පර 4කින් බටන් එක සාමාන්‍ය තත්වයට පත් කිරීම
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.style.pointerEvents = "all";
+                        submitBtn.style.background = "#fff";
+                        submitBtn.style.boxShadow = "none";
+                    }, 4000);
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                // Error State
+                submitBtn.innerHTML = "Transmission Failed. Retry ⚠";
+                submitBtn.style.background = "#ff3cac";
+                submitBtn.style.color = "#fff";
+                submitBtn.style.pointerEvents = "all";
+            }
+        });
+    }
+});
